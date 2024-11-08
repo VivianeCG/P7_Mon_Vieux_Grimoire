@@ -34,35 +34,35 @@ exports.createBook = (req, res, next) => {
     .catch((error) => res.status(400).json({error}));
     }
 
-exports.rateBook = (req, res, next) => {
-    const bookId = req.params.id;
-    const userId = req.auth.userId;
-    const grade = parseInt(req.body.grade, 10);
-    if (grade < 0 || grade > 5) {
-        return res.status(400).json({message: 'la note doit être un chiffre entre 0 et 5' });
-    } 
-    //récupération du livre
-    Book.findOneAndUpdate({ _id: bookId })
-    .then((book) => {
-        if(!book){
-            return res.status(404).json({ error })
-        };
-        //vérification que le livre n'a pas déjà été noté par l'utilisateur
-        const existingRating = book.ratings.find(rating => rating.userId === userId);
-        if (existingRating){
-            return res.status(400).json({ message: 'Vous avez déjà noté ce livre'});
+exports.rateBook = async (req, res) => {
+    try{
+            //traiter le req.body (user id et ratings dans req body)
+        const { userId, ratings} = req.body;
+        const bookId = await Book.findById(req.params.id); 
+        //condition si book id non trouvé erreur 404 libre non trouvé
+        if (!bookId){
+            return res.status(404).json({ message: "Livre non trouvé" });
         }
-        //ajouter id user et grade au tableau rating du livre
-        book.ratings.push({userId, grade});
-        //mettre à jour average rating
-        const totalRating = book.ratings.reduce((sum, ratings) => sum + ratings.grade, 0);
-        book.averageRating = totalRating / book.ratings.length;
-        //sauvegarde du résultat
-        book.save()
-        .then(() => res.status(201).json(book))
-        .catch(error => res.status(500).json({ error }));
-    })
-    .catch((error) => res.status(404).json({ error }));
+        //const nouvelle note pour note entre max et min
+        const grade = req.body.grade; // avec parseInt(req.body.grade, 10) console log indique NaN, sans console log indique undefined
+        console.log(grade);
+        if ( grade < 0 || grade > 5) {
+            return res.status(400).json({message: 'la note doit être un chiffre entre 0 et 5' });
+        } else {
+            //faire le push sur ratings sur la const jsute avant
+            const newRating = { userId, grade };
+            book.ratings.push(newRating);
+        }
+        //mise à jour average
+        const totalRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
+        book.averageRating = totalRatings / book.ratings.length
+        //await sur bookid.save et sauvegarde
+        await book.save();
+        res.status(201).json(book);
+    } catch (error) {
+        //ensuite gestion des erreurs
+        res.status(500).json({ error: 'Une erreur est survenue lors de l\'ajout de la note' });
+    }
    }
 
 exports.modifyBook = (req, res, next) => {
