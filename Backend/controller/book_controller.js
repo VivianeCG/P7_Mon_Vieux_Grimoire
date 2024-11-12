@@ -36,7 +36,7 @@ exports.createBook = (req, res, next) => {
 
 exports.rateBook = async (req, res) => {
     try{
-            //traiter le req.body (user id et ratings dans req body)
+        //traiter le req.body (user id et ratings dans req body)
         const { userId, ratings} = req.body;
         const bookId = await Book.findById(req.params.id); 
         //condition si book id non trouvé erreur 404 libre non trouvé
@@ -44,23 +44,21 @@ exports.rateBook = async (req, res) => {
             return res.status(404).json({ message: "Livre non trouvé" });
         }
         //const nouvelle note pour note entre max et min
-        const grade = req.body.grade; // avec parseInt(req.body.grade, 10) console log indique NaN, sans console log indique undefined
-        console.log(grade);
-        if ( grade < 0 || grade > 5) {
+        const newRating = {userId, grade};
+        if ( typeof grade !== 'number' || grade < 0 || grade > 5) {
             return res.status(400).json({message: 'la note doit être un chiffre entre 0 et 5' });
-        } else {
-            //faire le push sur ratings sur la const jsute avant
-            const newRating = { userId, grade };
-            book.ratings.push(newRating);
-        }
+            } 
+        //faire le push sur ratings sur la const jsute avant
+        book.ratings.push(newRating);
         //mise à jour average
         const totalRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
-        book.averageRating = totalRatings / book.ratings.length
+        const averageRating = totalRatings / book.ratings.length;
         //await sur bookid.save et sauvegarde
-        await book.save();
-        res.status(201).json(book);
+        await book.save(newRating, averageRating);
+        res.status(201).json({ message: 'Note ajoutée avec succès', book: book });
     } catch (error) {
         //ensuite gestion des erreurs
+        console.error("une erreur est survenue:", error);
         res.status(500).json({ error: 'Une erreur est survenue lors de l\'ajout de la note' });
     }
    }
