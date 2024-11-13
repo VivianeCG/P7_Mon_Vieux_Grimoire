@@ -38,28 +38,27 @@ exports.rateBook = async (req, res) => {
     try{
         //traiter le req.body (user id et ratings dans req body)
         const { userId, ratings} = req.body;
-        const bookId = await Book.findById(req.params.id); 
+        const book = await Book.findById(req.params.id); 
         //condition si book id non trouvé erreur 404 libre non trouvé
-        if (!bookId){
+        if (!book){
             return res.status(404).json({ message: "Livre non trouvé" });
         }
+        //condition pour vérifier si le user n'a pas déjà noté le livre
+        if (book.ratings.some((r) => r.userId === userId)){
+            return res.status(400).json({message: 'Vous avez déjà noté ce livre'});
+        }
         //const nouvelle note pour note entre max et min
-        const newRating = {userId, grade};
-        if ( typeof grade !== 'number' || grade < 0 || grade > 5) {
-            return res.status(400).json({message: 'la note doit être un chiffre entre 0 et 5' });
-            } 
-        //faire le push sur ratings sur la const jsute avant
+        //faire le push sur ratings sur la const juste avant
+        const newRating = { userId, ratings: Math.min(5, Math.max(0, ratings))};
         book.ratings.push(newRating);
         //mise à jour average
-        const totalRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
-        const averageRating = totalRatings / book.ratings.length;
-        //await sur bookid.save et sauvegarde
-        await book.save(newRating, averageRating);
-        res.status(201).json({ message: 'Note ajoutée avec succès', book: book });
+        book.averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length;
+        await book.save();
+        res.status(200).json(book);
     } catch (error) {
         //ensuite gestion des erreurs
-        console.error("une erreur est survenue:", error);
-        res.status(500).json({ error: 'Une erreur est survenue lors de l\'ajout de la note' });
+        console.error('Erreur dans rateBook', error.message);
+        res.status(400).json({ error: error.message });
     }
    }
 
