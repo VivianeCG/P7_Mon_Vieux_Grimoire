@@ -52,7 +52,7 @@ exports.rateBook = async (req, res) => {
         const newRating = { userId, ratings: Math.min(5, Math.max(0, ratings))};
         book.ratings.push(newRating);
         //mise à jour average
-        book.averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length;
+        book.averageRating = parseFloat((book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length).toFixed(1));
         await book.save();
         res.status(200).json(book);
     } catch (error) {
