@@ -13,10 +13,12 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
   });
+  
+  const mongoose = require('mongoose');
+  require('dotenv').config();
+const dbUrl = process.env.DATABASE_URL;
 
-const mongoose = require('mongoose');
-
-mongoose.connect('mongodb+srv://user1:Ihp24@cluster0.2uyvp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
       .then(() => console.log('Connexion à MongoDB réussie !'))
       .catch(() => console.log('Connexion à MongoDB échouée !'));
 
