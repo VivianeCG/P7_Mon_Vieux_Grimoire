@@ -37,7 +37,7 @@ exports.createBook = (req, res, next) => {
 exports.rateBook = async (req, res) => {
     try{
         //traiter le req.body (user id et ratings dans req body)
-        const { userId, ratings} = req.body;
+        const { userId, rating} = req.body;
         const book = await Book.findById(req.params.id); 
         //condition si book id non trouvé erreur 404 libre non trouvé
         if (!book){
@@ -49,10 +49,10 @@ exports.rateBook = async (req, res) => {
         }
         //const nouvelle note pour note entre max et min
         //faire le push sur ratings sur la const juste avant
-        const newRating = { userId, ratings: Math.min(5, Math.max(0, ratings))};
+        const newRating = { userId, grade: Math.min(5, Math.max(0, rating))};
         book.ratings.push(newRating);
         //mise à jour average
-        book.averageRating = parseFloat((book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length).toFixed(1));
+        book.averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length;
         await book.save();
         res.status(200).json(book);
     } catch (error) {

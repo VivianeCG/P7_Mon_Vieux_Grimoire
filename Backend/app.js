@@ -14,8 +14,8 @@ app.use((req, res, next) => {
     next();
   });
   
-  const mongoose = require('mongoose');
-  require('dotenv').config();
+const mongoose = require('mongoose');
+require('dotenv').config();
 const dbUrl = process.env.DATABASE_URL;
 
 mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
