@@ -4,7 +4,7 @@ const app = express();
 const helmet = require("helmet");
 
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({crossOriginEmbedderPolicy: false,}));
 
 const booksRoutes = require('./route/books_routes');
 const userRoutes = require('./route/user_routes');

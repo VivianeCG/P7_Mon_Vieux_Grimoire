@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage }).single('image');
+const upload = multer({ storage: storage, limits:{fileSize: 1024 * 1024 * 1} }).single('image');
 
 // Middleware pour optimiser les images
 async function optimizeImageMiddleware(req, res, next) {
@@ -28,8 +28,8 @@ async function optimizeImageMiddleware(req, res, next) {
     return next();
   }
 
-  const inputPath = `./images ${req.file.filename}`;
-  const tempPath = `./images/temp_${req.file.filename}`; 
+  const inputPath = path.join(__dirname, 'images', req.file.filename);
+  const tempPath = path.join(__dirname, 'images', `temp_${req.file.filename}`);
 
   try {
 
@@ -43,10 +43,10 @@ async function optimizeImageMiddleware(req, res, next) {
       .toFile(tempPath);
 
     // Supprimer l'image originale et la remplacer par l'optimisée
-    fs.unlinkSync(inputPath);
-    fs.renameSync(tempPath, inputPath);
+    await fs.unlinkSync(inputPath);
+    await fs.renameSync(tempPath, inputPath);
 
-    console.log('Image optimisée et enregistrée :', outputPath);
+    
     next();
   } catch (error) {
     console.error("Erreur lors de l'optimisation de l'image :", error);
