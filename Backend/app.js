@@ -1,8 +1,10 @@
 const express = require('express');
 const path = require('path');
 const app = express();
+const helmet = require("helmet");
 
 app.use(express.json());
+app.use(helmet());
 
 const booksRoutes = require('./route/books_routes');
 const userRoutes = require('./route/user_routes');
@@ -18,7 +20,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const dbUrl = process.env.DATABASE_URL;
 
-mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(dbUrl)
       .then(() => console.log('Connexion à MongoDB réussie !'))
       .catch(() => console.log('Connexion à MongoDB échouée !'));
 

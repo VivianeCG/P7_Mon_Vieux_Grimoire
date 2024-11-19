@@ -36,27 +36,21 @@ exports.createBook = (req, res, next) => {
 
 exports.rateBook = async (req, res) => {
     try{
-        //traiter le req.body (user id et ratings dans req body)
         const { userId, rating} = req.body;
         const book = await Book.findById(req.params.id); 
-        //condition si book id non trouvé erreur 404 libre non trouvé
         if (!book){
             return res.status(404).json({ message: "Livre non trouvé" });
         }
-        //condition pour vérifier si le user n'a pas déjà noté le livre
         if (book.ratings.some((r) => r.userId === userId)){
             return res.status(400).json({message: 'Vous avez déjà noté ce livre'});
         }
-        //const nouvelle note pour note entre max et min
-        //faire le push sur ratings sur la const juste avant
         const newRating = { userId, grade: Math.min(5, Math.max(0, rating))};
         book.ratings.push(newRating);
-        //mise à jour average
-        book.averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length;
+        
+        book.averageRating = (book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length).toFixed(1);
         await book.save();
         res.status(200).json(book);
     } catch (error) {
-        //ensuite gestion des erreurs
         console.error('Erreur dans rateBook', error.message);
         res.status(400).json({ error: error.message });
     }
