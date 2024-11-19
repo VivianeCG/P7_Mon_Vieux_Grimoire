@@ -1,10 +1,10 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const helmet = require("helmet");
+const helmet = require("helmet"); //contre les attaques XSS (cross-site scripting attacks)
 
 app.use(express.json());
-app.use(helmet({crossOriginEmbedderPolicy: false,}));
+app.use(helmet({crossOriginEmbedderPolicy: false}));
 
 const booksRoutes = require('./route/books_routes');
 const userRoutes = require('./route/user_routes');
