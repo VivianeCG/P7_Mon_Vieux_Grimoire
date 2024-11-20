@@ -1,6 +1,7 @@
 const multer = require('multer');
-const sharp = require('sharp');
-const fs = require('fs');
+/*const sharp = require('sharp');
+const fs = require('fs');*/
+//const path = require('path');
 
 const MIME_TYPES = {
   'image/jpg': 'jpg',
@@ -19,7 +20,8 @@ const storage = multer.diskStorage({
     callback(null, name + Date.now() + '.' + extension);
   }
 });
-
+ module.exports = multer({storage}).single('image');
+/*
 const upload = multer({ storage: storage, limits:{fileSize: 1024 * 1024 * 1} }).single('image');
 
 // Middleware pour optimiser les images
@@ -28,8 +30,8 @@ async function optimizeImageMiddleware(req, res, next) {
     return next();
   }
 
-  const inputPath = path.join(__dirname, 'images', req.file.filename);
-  const tempPath = path.join(__dirname, 'images', `temp_${req.file.filename}`);
+  const inputPath = path.join('images', req.file.filename);
+  const tempPath = path.join('images', `temp_${req.file.filename}`);
 
   try {
 
@@ -39,7 +41,7 @@ async function optimizeImageMiddleware(req, res, next) {
     await sharp(inputPath)
       .resize({ width: 463,
         height: 595 }) 
-      .toFormat('webp', { quality: 80 }) 
+      //.toFormat('webp', { quality: 80 }) 
       .toFile(tempPath);
 
     // Supprimer l'image originale et la remplacer par l'optimisée
@@ -54,4 +56,4 @@ async function optimizeImageMiddleware(req, res, next) {
   }
 }
 
-module.exports = { upload, optimizeImageMiddleware };
+module.exports = { upload, optimizeImageMiddleware };*/
