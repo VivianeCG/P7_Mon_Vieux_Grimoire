@@ -1,7 +1,7 @@
 const multer = require('multer');
-/*const sharp = require('sharp');
-const fs = require('fs');*/
-//const path = require('path');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
 
 const MIME_TYPES = {
   'image/jpg': 'jpg',
@@ -20,40 +20,34 @@ const storage = multer.diskStorage({
     callback(null, name + Date.now() + '.' + extension);
   }
 });
- module.exports = multer({storage}).single('image');
-/*
-const upload = multer({ storage: storage, limits:{fileSize: 1024 * 1024 * 1} }).single('image');
+const upload = multer({ storage }).single('image');
 
 // Middleware pour optimiser les images
-async function optimizeImageMiddleware(req, res, next) {
+const optimizeImageMiddleware = async (req, res, next) => {
   if (!req.file) {
     return next();
   }
 
-  const inputPath = path.join('images', req.file.filename);
-  const tempPath = path.join('images', `temp_${req.file.filename}`);
+  const inputPath = req.file.path;
+  const webpImageName = `optimized_${path.basename(req.file.filename, path.extname(req.file.filename))}.webp`;
+  const tempPath = path.join('images', webpImageName);
 
   try {
+    await sharp(inputPath).webp({ quality: 80 }).resize(400).toFile(tempPath);
 
-    fs.mkdirSync('./images/optimized', { recursive: true });
+    req.file.filename = webpImageName;
 
-    // Optimiser l'image
-    await sharp(inputPath)
-      .resize({ width: 463,
-        height: 595 }) 
-      //.toFormat('webp', { quality: 80 }) 
-      .toFile(tempPath);
-
-    // Supprimer l'image originale et la remplacer par l'optimisée
-    await fs.unlinkSync(inputPath);
-    await fs.renameSync(tempPath, inputPath);
-
-    
-    next();
+    // Suppr image initiale
+    fs.unlink(inputPath, error => {
+      if (error) {
+        console.error("Impossible de supprimer l'image originale :", error);
+        return next(error);
+      }
+      next();
+    })
   } catch (error) {
-    console.error("Erreur lors de l'optimisation de l'image :", error);
-    res.status(500).json({ error: "Erreur lors du traitement de l'image" });
+    next(error);
   }
 }
 
-module.exports = { upload, optimizeImageMiddleware };*/
+module.exports = { upload, optimizeImageMiddleware };
