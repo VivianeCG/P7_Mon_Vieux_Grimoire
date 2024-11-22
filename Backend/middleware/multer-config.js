@@ -28,7 +28,7 @@ const optimizeImageMiddleware = async (req, res, next) => {
     return next();
   }
 
-  const inputPath = req.file.path;
+  const inputPath = (req.file.path);
   const webpImageName = `optimized_${path.basename(req.file.filename, path.extname(req.file.filename))}.webp`;
   const tempPath = path.join('images', webpImageName);
 

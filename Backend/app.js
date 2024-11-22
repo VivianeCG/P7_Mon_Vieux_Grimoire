@@ -2,9 +2,11 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const helmet = require("helmet"); //contre les attaques XSS (cross-site scripting attacks)
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 app.use(express.json());
-app.use(helmet({crossOriginEmbedderPolicy: false}));
+app.use(helmet({crossOriginEmbedderPolicy: false, crossOriginResourcePolicy: { policy: "cross-origin" },}));
 
 const booksRoutes = require('./route/books_routes');
 const userRoutes = require('./route/user_routes');
@@ -16,8 +18,6 @@ app.use((req, res, next) => {
     next();
   });
   
-const mongoose = require('mongoose');
-require('dotenv').config();
 const dbUrl = process.env.DATABASE_URL;
 
 mongoose.connect(dbUrl)

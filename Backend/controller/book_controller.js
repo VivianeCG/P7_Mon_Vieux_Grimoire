@@ -59,7 +59,7 @@ exports.rateBook = async (req, res) => {
         console.error('Erreur dans rateBook', error.message);
         res.status(400).json({ error: error.message });
     }
-   }
+   };
 
 //Logique pour la modification d'un livre par l'utilisateur qui l'a enregistré
 exports.modifyBook = (req, res, next) => {
@@ -97,4 +97,4 @@ exports.deleteBook = (req, res, next) => {
         }
     })
     .catch((error) => res.status(500).json({ error }));
-    }
+    };
