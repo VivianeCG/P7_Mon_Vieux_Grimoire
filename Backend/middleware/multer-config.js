@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     callback(null, name + Date.now() + '.' + extension);
   }
 });
-const upload = multer({ storage }).single('image');
+const upload = multer({ storage, limits:{fileSize: 1024 * 1024 * 1}}).single('image');
 
 // Middleware pour optimiser les images
 const optimizeImageMiddleware = async (req, res, next) => {
@@ -33,7 +33,7 @@ const optimizeImageMiddleware = async (req, res, next) => {
   const tempPath = path.join('images', webpImageName);
 
   try {
-    await sharp(inputPath).webp({ quality: 80 }).resize(400).toFile(tempPath);
+    await sharp(inputPath).webp({ quality: 80 }).resize({ width: 463, height: 595 }).toFile(tempPath);
 
     req.file.filename = webpImageName;
 
